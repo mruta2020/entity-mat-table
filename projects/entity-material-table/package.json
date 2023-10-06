@@ -1,0 +1,22 @@
+{
+  "name": "entity-material-table",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^16.1.0",
+    "@angular/core": "^16.1.0",
+    "lodash": "^4.17.21",
+    "@angular/material": "^16.2.7"
+  },
+  "exports": {
+    ".": {
+      "sass": "./_index.scss"
+    }
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "devDependencies": {
+    "@types/lodash": "^4.14.199"
+  }
+}

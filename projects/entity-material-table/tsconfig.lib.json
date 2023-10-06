@@ -1,0 +1,21 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/lib",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true,
+    "strictPropertyInitialization": false,
+    "strict": false,
+    "types": []
+  },
+  "styles": [
+    "node_modules/@material-design-icons/font/",
+    "node_modules/@material-design-icons/font/outlined.scss",
+    "node_modules/@material-design-icons/font/material-icons-outlined.woff"
+  ],
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}
