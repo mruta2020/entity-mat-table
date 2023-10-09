@@ -25,10 +25,10 @@ export class AppComponent implements OnInit {
   constructor(private http: HttpClient) {
 
     // @ts-ignore
-    Parse.serverURL = 'https://parseapi.back4app.com/';
-    Parse.initialize('ynCOHfXLos2C6NMB0m2MzAhiY5PWCsiF3jZYNj9P', 'sPOFUfDby1vTylUnaKHh6hT8Z1FKxB69ehyLD1IL');
+    Parse.serverURL = 'XXXX';
+    Parse.initialize('XXXX', 'XXXX');
     // @ts-ignore
-    Parse.masterKey = 'CttfOu5KqaIW9WPE69hGzIuwOPGYUMZUtGpAiCrm';
+    Parse.masterKey = 'XXXX';
 
   }
 
