@@ -12,9 +12,9 @@ import {EntityMatTableOptions, EntityMatTablePaginationRes, EntityTableColumn} f
 import * as _ from "lodash";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
-import {map, Observable} from "rxjs";
-import {HttpClient} from "@angular/common/http";
+import {map} from "rxjs";
 import {SelectionModel} from "@angular/cdk/collections";
+import {EntityMaterialTableService} from "./entity-material-table.service";
 
 @Component({
   selector: 'entity-material-table',
@@ -23,6 +23,7 @@ import {SelectionModel} from "@angular/cdk/collections";
 })
 export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
 
+  @ContentChild('exportTemplate') exportTemplate!: TemplateRef<any>;
   @ContentChild('cellTemplate') cellTemplate!: TemplateRef<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -32,22 +33,30 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
 
   selection = new SelectionModel<T>(true, []);
 
-  totalCount : number = 1;
   paginationRes: EntityMatTablePaginationRes<T>;
   displayedColumns: string[] = [];
   dataSource = new MatTableDataSource<T[]>;
 
-  constructor(private http: HttpClient) {
+  constructor(private srv: EntityMaterialTableService<T>) {
   }
 
   async ngAfterViewInit() {
 
     if (this.options?.paginator?.show) {
 
-      await this.initAsyncTable();
+      if(this.options?.serverHttp){
+        await this.initAsyncTable();
+      } else {
+        this.initSyncTable();
+      }
 
       this.paginator.page.subscribe(async () => {
-        await this.initAsyncTable();
+        if(this.options?.serverHttp){
+          await this.initAsyncTable();
+        } else {
+          this.initSyncTable();
+        }
+
       });
     }
   }
@@ -77,6 +86,11 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
       this.initColumns();
     }
 
+  }
+
+  onExportExcel(){
+    // @ts-ignore
+    this.srv.exportDataTableToExcel(this.dataSource.data, this.options)
   }
 
   getPipeTransform(value: string, element: EntityTableColumn){
@@ -122,6 +136,16 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
     this.checkColumnsAreAvailable();
   }
 
+  private initSyncTable(){
+
+    // @ts-ignore
+    this.dataSource.data = this.options.rows.slice(this.paginator.pageIndex * this.paginator.pageSize, (this.paginator.pageIndex + 1) * this.paginator.pageSize);
+    this.dataSource._updateChangeSubscription();
+
+    this.initColumns();
+    this.paginator.length = this.options.rows.length;
+  }
+
   private async initAsyncTable() {
 
     // @ts-ignore
@@ -153,12 +177,12 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
       params[k] = this.options.queryParameters.get(k);
     }
 
-    const sizeAlias: any = this.options.paginator.queryParametersAlias.get('size');
+    const sizeAlias: any = this.options.paginator.queryParametersAlias?.get('size');
     if (sizeAlias) {
       params[sizeAlias] = this.paginator?.pageSize;
     }
 
-    const pageAlias: any = this.options.paginator.queryParametersAlias.get('page');
+    const pageAlias: any = this.options.paginator.queryParametersAlias?.get('page');
     if (pageAlias) {
       params[pageAlias] = this.paginator?.pageIndex + this.options.paginator.default;
     }

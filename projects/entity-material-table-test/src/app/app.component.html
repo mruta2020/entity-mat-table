@@ -1,10 +1,13 @@
+<div>
+    <button (click)="entityMaterialTableComponent.onExportExcel()">Esporta</button>
+</div>
 <entity-material-table [options]="tableOptions" (onSelection)="onSelectionChange($event)">
-<!--    <ng-template #cellTemplate let-element let-property="property">
+   <ng-template #cellTemplate let-element let-property="property">
         <div *ngIf="property != 'actions'">{{element[property]}}</div>
         <div *ngIf="property == 'actions'">
             <div>
                 <button (click)="onDelete(element)">cancella</button>
             </div>
         </div>
-    </ng-template>-->
+    </ng-template>
 </entity-material-table>

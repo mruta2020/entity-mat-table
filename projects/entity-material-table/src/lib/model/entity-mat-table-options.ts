@@ -5,11 +5,31 @@ export class EntityMatTableOptions<T> {
   queryParameters: Map<string, any>;
   showSelection: boolean;
   rows: T[];
+  excelConfig: EntityMatTableExcelConfig;
   serverHttp: Function;
   transcoder: Function;
-  paginator: { size: number[]; default: number; show: boolean, queryParametersAlias: Map<string, string> }
-  actions: { icon?: string; label?: string; callback(): void }[];
+  paginator: EntityMatTablePaginator;
+  actions: EntityMatTableAction[];
   columns: EntityTableColumn[];
+}
+
+export interface EntityMatTableAction {
+  icon?: string;
+  label?: string;
+  callback(): void
+}
+
+export interface EntityMatTablePaginator {
+  size: number[];
+  default: number;
+  show: boolean,
+  queryParametersAlias?: Map<string, string>
+}
+
+export interface EntityMatTableExcelConfig {
+  extension: '.csv' | '.xlsx';
+  sheetName: string;
+  fileName: string;
 }
 
 export interface EntityTableColumn {

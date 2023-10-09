@@ -17,6 +17,7 @@ import {CurrencyPipe} from "@angular/common";
 export class AppComponent implements OnInit {
 
   @ViewChild('libEntityMaterialTable') appFoo: EntityMaterialTableComponent<Ex>;
+  @ViewChild(EntityMaterialTableComponent) entityMaterialTableComponent: EntityMaterialTableComponent<Ex>;
 
   //@ts-ignore
   tableOptions: EntityMatTableOptions = {};
@@ -33,8 +34,8 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
 
-    this._initAsyncData();
-    //this._initSyncData();
+    //his._initAsyncData();
+    this._initSyncData();
 
   }
 
@@ -255,6 +256,11 @@ export class AppComponent implements OnInit {
       {position: 20, name: 'Calcium', weight: 40.078, symbol: 'Ca'},
     ];
 
+    this.tableOptions.paginator = {
+      show: true,
+      size: [3,10,12],
+      default: 0
+    };
     this.tableOptions.rows = elements;
 
     this.tableOptions.actions = [
