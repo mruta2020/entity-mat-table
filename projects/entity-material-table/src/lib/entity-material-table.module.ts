@@ -5,6 +5,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {CommonModule} from "@angular/common";
 import {MatIconModule} from "@angular/material/icon";
 import {EntityMatTableActionComponent} from "./entity-mat-table-action/entity-mat-table-action.component";
+import {MatCheckboxModule} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import {EntityMatTableActionComponent} from "./entity-mat-table-action/entity-ma
     MatTableModule,
     MatPaginatorModule,
     MatIconModule,
+    MatCheckboxModule,
     CommonModule
   ],
   exports: [

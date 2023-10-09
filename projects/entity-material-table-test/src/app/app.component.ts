@@ -1,10 +1,13 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {
   EntityMatTableOptions,
-  EntityMatTablePaginationRes
+  EntityMatTablePaginationRes, EntityTableColumn
 } from "../../../entity-material-table/src/lib/model/entity-mat-table-options";
 import {HttpClient} from "@angular/common/http";
 import {EntityMaterialTableComponent} from "entity-material-table";
+import * as Parse from 'parse';
+import {Observable} from "rxjs";
+import {CurrencyPipe} from "@angular/common";
 
 @Component({
   selector: 'app-root',
@@ -19,6 +22,13 @@ export class AppComponent implements OnInit {
   tableOptions: EntityMatTableOptions = {};
 
   constructor(private http: HttpClient) {
+
+    // @ts-ignore
+    Parse.serverURL = 'https://parseapi.back4app.com/';
+    Parse.initialize('ynCOHfXLos2C6NMB0m2MzAhiY5PWCsiF3jZYNj9P', 'sPOFUfDby1vTylUnaKHh6hT8Z1FKxB69ehyLD1IL');
+    // @ts-ignore
+    Parse.masterKey = 'CttfOu5KqaIW9WPE69hGzIuwOPGYUMZUtGpAiCrm';
+
   }
 
   async ngOnInit() {
@@ -40,48 +50,164 @@ export class AppComponent implements OnInit {
     console.log(row);
   }
 
+  public buildHttpCall(params = {}) {
+    return this.http.get('https://reqres.in/api/users', {
+      params
+    });
+  }
+
+  public parseSdkCall(params: any = {}) {
+
+    //@ts-ignore
+    return new Observable(async (observer) => {
+
+      const query = new Parse.Query("Invoice");
+
+      var page = params['page'];
+
+      // How much you want on a page
+      var displayLimit = params['displayLimit'];
+
+      // Get the count on a collection
+      var count: number = await  query.count();
+
+      const skip = page * displayLimit;
+
+      query.descending('updatedAt');
+      query.limit(displayLimit);
+      query.skip(skip);
+
+      // So with this above code, on page 0, you will get 50 results and skip 0 records.
+      // If your page var is 1, you'll skip the first 50 and get 50 results starting at 51
+      // So on so forth...
+
+      query.find().then((res) => {
+
+        let response = {
+          totalPage: Math.ceil(count / displayLimit),
+          data: res.map((item: any) => {
+            let json = item.toJSON();
+            json['ref'] = item;
+            return json;
+          }),
+          pageSize: displayLimit,
+          currentPage: Math.ceil(count / skip),
+          count
+        }
+
+        observer.next(response);
+        observer.complete();
+      }).catch((error) => {
+        observer.error(error);
+        observer.complete();
+      });
+    });
+  }
+
+  onSelectionChange(selection: any){
+    console.log(selection);
+  }
+
   private _initAsyncData() {
 
-    this.tableOptions.url = 'https://reqres.in/api/users';
+    //Costruisco l'oggetto a seconda del type
+
+    const config = this.factoryOptions(SERVER_TYPE.PARSE_SDK);
+    this.tableOptions.serverHttp = config.http;
+    this.tableOptions.transcoder = config.transcoder;
+    this.tableOptions.showSelection = true;
 
     let queryParameters = new Map<string, any>;
     this.tableOptions.queryParameters = queryParameters;
 
-    let queryParametersAlias = new Map<string, any>;
-    queryParametersAlias.set('page', 'page');
-    queryParametersAlias.set('size', 'per_page');
+    let queryParametersAlias = config.aliasParameters;
 
     this.tableOptions.rows;
     this.tableOptions.paginator = {
       show: true,
       size: [1, 2, 3],
-      default: 1,
+      default: config.pageDefaultIndex,
       queryParametersAlias
     };
 
-    this.tableOptions.columns = [
-      {
-        property: 'id',
-        label: 'Id'
-      },
-      {
-        property: 'email',
-        label: 'Email'
-      },
-      {
-        property: 'first_name',
-        label: 'Nome'
-      },
-      {
-        property: 'last_name',
-        label: 'Cognome'
-      },
-      {
-        property: 'avatar',
-        label: 'Avatar'
-      }
-    ]
+    this.tableOptions.columns = config.columns;
+  }
 
+  public factoryOptions(type: SERVER_TYPE): ServerConfig {
+
+    let config: ServerConfig = {
+      http: new Function(),
+      transcoder: new Function(),
+      aliasParameters: new Map<string, any>,
+      columns: [],
+      pageDefaultIndex: 0
+    };
+
+    switch (type) {
+      case SERVER_TYPE.PARSE_SDK:
+        config.http = this.parseSdkCall;
+        config.transcoder = this.parseSdkTransconder;
+        config.aliasParameters.set('page', 'page');
+        config.aliasParameters.set('size', 'displayLimit');
+        config.columns = [
+          {
+            label: 'Id',
+            property: 'objectId'
+          },
+          {
+            label: 'Importo',
+            property: 'amount',
+            pipe: {
+              ref: new CurrencyPipe('en-US'),
+              args: ['EUR']
+            }
+          }
+        ];
+        break;
+      case SERVER_TYPE.HTTP:
+        config.aliasParameters.set('page', 'page');
+        config.aliasParameters.set('size', 'per_page');
+        config.http = this.buildHttpCall;
+        config.columns = [
+          {
+            property: 'id',
+            label: 'Id'
+          },
+          {
+            property: 'email',
+            label: 'Email'
+          },
+          {
+            property: 'first_name',
+            label: 'Nome'
+          },
+          {
+            property: 'last_name',
+            label: 'Cognome'
+          },
+          {
+            property: 'avatar',
+            label: 'Avatar'
+          }
+        ];
+        config.pageDefaultIndex = 1;
+        config.transcoder = this.transcoder
+        break;
+    }
+
+    return config;
+  }
+
+  private parseSdkTransconder(res: any) {
+
+    const paginationRes: EntityMatTablePaginationRes<Ex> = new EntityMatTablePaginationRes<Ex>();
+    paginationRes.totalPages = res.totalPage;
+    paginationRes.data = res.data;
+    paginationRes.perPage = res.pageSize;
+    paginationRes.page = res.currentPage;
+    paginationRes.total = res.count;
+
+    return paginationRes;
   }
 
   public transcoder(res: any) {
@@ -157,4 +283,17 @@ export interface Ex {
   first_name: string
   last_name: string
   avatar: string
+}
+
+export enum SERVER_TYPE {
+  HTTP = "HTTP",
+  PARSE_SDK = "PARSE_SDK"
+}
+
+export interface ServerConfig {
+  http: Function;
+  transcoder: Function;
+  aliasParameters: Map<string, string>;
+  pageDefaultIndex: number;
+  columns: EntityTableColumn[]
 }

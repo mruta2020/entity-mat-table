@@ -8,15 +8,16 @@ import {
   Output,
   TemplateRef, ViewChild
 } from '@angular/core';
-import {EntityMatTableOptions, EntityMatTablePaginationRes} from "./model/entity-mat-table-options";
+import {EntityMatTableOptions, EntityMatTablePaginationRes, EntityTableColumn} from "./model/entity-mat-table-options";
 import * as _ from "lodash";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatTableDataSource} from "@angular/material/table";
 import {map, Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
+import {SelectionModel} from "@angular/cdk/collections";
 
 @Component({
-  selector: 'lib-entity-material-table',
+  selector: 'entity-material-table',
   templateUrl: './entity-material-table.component.html',
   styles: []
 })
@@ -26,9 +27,10 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   @Input() options: EntityMatTableOptions<T>;
-  @Input() transcoder!: Function;
-
   @Output() selected = new EventEmitter<T>();
+  @Output() onSelection = new EventEmitter();
+
+  selection = new SelectionModel<T>(true, []);
 
   totalCount : number = 1;
   paginationRes: EntityMatTablePaginationRes<T>;
@@ -52,6 +54,10 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
 
   async ngOnInit() {
 
+    this.selection.changed.subscribe((res)=>{
+      this.onSelection.emit(res);
+    });
+
     this.initOptionsDefaultValue();
 
     if (this.options?.actions?.length > 0) {
@@ -64,13 +70,17 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
       }
     }
 
-    if (!this.options.url) {
+    if (!this.options.serverHttp) {
       let data: any = this.options.rows;
       this.dataSource.data = data;
       this.dataSource._updateChangeSubscription();
       this.initColumns();
     }
 
+  }
+
+  getPipeTransform(value: string, element: EntityTableColumn){
+    return element.pipe?.ref.transform(value, element.pipe.args);
   }
 
   onSelect(row: T) {
@@ -81,18 +91,41 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
     return _.has(object, 'data') && _.has(object, 'perPage');
   }
 
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  toggleAllRows() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    //@ts-ignore
+    this.selection.select(...this.dataSource.data);
+  }
+
   private initColumns() {
 
     this.displayedColumns = this.options?.columns.map(c => c.property);
+
+    if(this.options?.showSelection){
+      const selectColumn = _.find(this.displayedColumns, c => c == 'selection');
+      if (!selectColumn) {
+        this.displayedColumns.splice(0, 0, 'selection');
+      }
+    }
+
     this.checkColumnsAreAvailable();
   }
 
   private async initAsyncTable() {
 
     // @ts-ignore
-    const observable = this.http.get(this.options.url, {
-      params: this.buildQueryParameters()
-    }).pipe(map(res => this.transcoder(res)));
+    const observable = this.options.serverHttp(this.buildQueryParameters()).pipe(map(res => this.options.transcoder(res)));
     const data = await observable.toPromise();
 
     //@ts-ignore

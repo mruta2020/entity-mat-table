@@ -1,27 +1,73 @@
-# EntityMaterialTable
+# Entity Material Table
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.1.3.
+"entity-material-table" is an Angular custom component that simplify table creation based on entity data, with pagination.
 
-## Development server
+## Installazione
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+To install the library use:
 
-## Code scaffolding
+```shell
+npm install entity-material-table
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+# Usage
 
-## Build
+To use the library in your project, follow these steps:
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+1. Importa il modulo EntityMaterialTableModule nella tua applicazione:
 
-## Running unit tests
+```shell
+import { EntityMaterialTableModule } from 'entity-material-table';
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+@NgModule({
+  imports: [
+    // ...
+    EntityMaterialTableModule
+  ],
+  // ...
+})
+export class AppModule { }
+```
+2. In your component, use the entity-material-table component in your HTML template
 
-## Running end-to-end tests
+```shell
+<entity-material-table [options]="tableOptions" (selected)="onRowSelected($event)"></entity-material-table>
+```
+3. Define the table options in your component
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```shell
+import { EntityMatTableOptions } from 'entity-material-table';
 
-## Further help
+@Component({
+  // ...
+})
+export class YourComponent {
+  tableOptions: EntityMatTableOptions<any> = {
+    // Configura le opzioni della tabella qui
+  };
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+  onRowSelected(row: any) {
+    // Gestisci l'evento di selezione della riga qui
+  }
+}
+```
+
+| Field              | Type                  | Description                                                                                             |
+|--------------------|-----------------------|---------------------------------------------------------------------------------------------------------|
+| `queryParameters`  | `Map<string, any>`    | A map of parameters to pass in the HTTP request to the server.                                          |
+| `showSelection`    | `boolean`             | Indicates whether the row selection column should be displayed in the table.                           |
+| `rows`             | `T[]`                 | An array of data (rows) to display in the table.                                                        |
+| `serverHttp`       | `Function`            | A function that performs the HTTP request to the server to fetch table data.                             |
+| `transcoder`       | `Function`            | A function that converts the server's HTTP response into table data.                                      |
+| `paginator`        | `{ size: number[]; default: number; show: boolean, queryParametersAlias: Map<string, string> }` | Pagination options, including possible values for the number of rows per page, the default value, and whether pagination should be displayed. |
+| `actions`          | `{ icon?: string; label?: string; callback(): void }[]` | An array of custom actions to display in the "Actions" column of the table. Each action can have an icon, a label, and a callback function. |
+| `columns`          | `EntityTableColumn[]` | An array of objects defining the columns of the table. Each object contains information such as a label and property to display. |
+
+# Contribute
+If you wish to contribute to this library, please fork the repository and submit your pull requests. We welcome contributions from the community!
+
+# Licenza
+Please make sure to customize this README with specific information about your library, including installation instructions, usage, and any other necessary documentation.
+
+
+

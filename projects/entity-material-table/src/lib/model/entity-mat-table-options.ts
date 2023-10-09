@@ -1,12 +1,25 @@
 import {Observable} from "rxjs";
+import {Pipe, PipeTransform} from "@angular/core";
 
 export class EntityMatTableOptions<T> {
-  url: string;
-  queryParameters: Map<string,any>;
+  queryParameters: Map<string, any>;
+  showSelection: boolean;
   rows: T[];
-  paginator: {size: number[];default: number;show:boolean,queryParametersAlias: Map<string,string>}
+  serverHttp: Function;
+  transcoder: Function;
+  paginator: { size: number[]; default: number; show: boolean, queryParametersAlias: Map<string, string> }
   actions: { icon?: string; label?: string; callback(): void }[];
-  columns: { label: string; property: string; }[];
+  columns: EntityTableColumn[];
+}
+
+export interface EntityTableColumn {
+  label: string;
+  property: string;
+  pipe?: {
+    ref: PipeTransform
+    args: any[];
+  }
+
 }
 
 export class EntityMatTablePaginationRes<T> {

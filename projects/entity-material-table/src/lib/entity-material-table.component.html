@@ -1,6 +1,22 @@
 <table mat-table
        [dataSource]="dataSource" class="mat-elevation-z8">
 
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="selection" *ngIf="options.showSelection">
+        <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()">
+            </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)">
+            </mat-checkbox>
+        </td>
+    </ng-container>
+
     <ng-container *ngFor="let c of options.columns" [matColumnDef]="c.property">
         <th mat-header-cell *matHeaderCellDef> {{c.label}}</th>
         <td mat-cell *matCellDef="let element">
@@ -8,7 +24,8 @@
                           [ngTemplateOutlet]="cellTemplate"
                           [ngTemplateOutletContext]="{ $implicit: element, property: c.property }"></ng-container>
             <ng-container *ngIf="!cellTemplate">
-                <div>{{element[c.property]}}</div>
+                <div *ngIf="c.pipe">{{getPipeTransform(element[c.property], c)}}</div>
+                <div *ngIf="!c.pipe">{{element[c.property]}}</div>
             </ng-container>
         </td>
     </ng-container>
