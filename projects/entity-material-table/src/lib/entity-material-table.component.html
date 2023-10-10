@@ -35,7 +35,7 @@
     <tr mat-row (click)="onSelect(row)" *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
 <mat-paginator *ngIf="options?.paginator?.show"
-               [pageSize]="options?.paginator.default"
+               [pageSize]="options?.paginator.sizePage"
                [pageSizeOptions]="options?.paginator?.size"
                aria-label="Select page of periodic elements">
 </mat-paginator>

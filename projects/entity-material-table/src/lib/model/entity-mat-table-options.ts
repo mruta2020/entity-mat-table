@@ -2,14 +2,14 @@ import {Observable} from "rxjs";
 import {Pipe, PipeTransform} from "@angular/core";
 
 export class EntityMatTableOptions<T> {
-  queryParameters: Map<string, any>;
-  showSelection: boolean;
-  rows: T[];
-  excelConfig: EntityMatTableExcelConfig;
-  serverHttp: Function;
-  transcoder: Function;
-  paginator: EntityMatTablePaginator;
-  actions: EntityMatTableAction[];
+  queryParameters?: Map<string, any>;
+  showSelection?: boolean;
+  rows?: T[];
+  excelConfig?: EntityMatTableExcelConfig;
+  serverHttp?: Function;
+  transcoder?: Function;
+  paginator?: EntityMatTablePaginator;
+  actions?: EntityMatTableAction[];
   columns: EntityTableColumn[];
 }
 
@@ -21,6 +21,7 @@ export interface EntityMatTableAction {
 
 export interface EntityMatTablePaginator {
   size: number[];
+  sizePage: number;
   default: number;
   show: boolean,
   queryParametersAlias?: Map<string, string>

@@ -98,7 +98,88 @@ EntityMatTableExcelConfig
 | `selected` | `@Output<EntityMatTableOptions>` | Emit the table selected row                                                                          |
 | `onSelection` | `@Output<EntityMatTableOptions>`   | Emit the rows selected by checkbox in selection column. It works with options.showSelection setted true. |
 
+# Example usage
+
+See Test project to learn how use library with async or sync data. Here a small recap for async data usage
+
+```typescript
+  /**
+   * Function to construct an http call. This is the callback passed as a parameter to tableOptions in serverHttp.
+   * If our server indicates the page size parameter with alias 'elementPerPage' then inside 'queryAliasParameter' we need to add aliasParameter page -> per_page
+   * @param params
+   */
+  public buildHttpCall(params = {}) {
+    return this.http.get('https://reqres.in/api/users', {
+      params
+    });
+  }
+```
+
+After you define call http with httpClient, you can pass the returned observable to serverHttp. This is an example of tableOptions config
+
+```typescript
+get httpTableOptionsConfig() {
+
+  let queryParameters = new Map<string, any>;
+  let queryParametersAlias = new Map<string, any>;
+
+  queryParametersAlias.set('size', 'per_page');
+  queryParametersAlias.set('page', 'page');
+
+  //With serverHttp value, rows property doesn't need
+  let tableOptions: EntityMatTableOptions<Element> = {
+    queryParameters: queryParameters,
+    serverHttp: this.buildHttpCall,
+    showSelection: true,
+    transcoder: this.transcoder,
+    paginator: {
+      show: true,
+      size: [1, 2, 3],
+      default: 1,
+      queryParametersAlias
+    },
+    columns: [
+      {
+        property: 'id',
+        label: 'Id'
+      },
+      {
+        property: 'email',
+        label: 'Email'
+      },
+      {
+        property: 'first_name',
+        label: 'Nome'
+      },
+      {
+        property: 'last_name',
+        label: 'Cognome'
+      },
+      {
+        property: 'avatar',
+        label: 'Avatar'
+      }
+    ]
+  };
+
+  return tableOptions;
+}
+```
+
+# Angular Theme CSS
+
+To display Angular theme style you need to import stylesheet inside your application.
+Normally the style is added inside `angular.json`
+
+```json
+   "styles": [
+      ...,
+      "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
+   ]
+```
+
 # Export excel
+
 Excel export functionality need a templateRef to work, through the @ViewChild usage.
 
 Define your HTML with button, icon or what do you want. The main purpose is call the function onExportExcel.
@@ -116,6 +197,8 @@ TS
 ```javascript
 @ViewChild(EntityMaterialTableComponent) entityMaterialTableComponent: EntityMaterialTableComponent<Ex>;
 ```
+
+
 
 # Cell template
 The Table renders cells as string value. You could pass a Pipe to transform the value for single cell.
@@ -154,22 +237,9 @@ Custom template
     </ng-template>
 </entity-material-table>
 ```
-# Example
 
-See Test project to learn how use library with async or sync data. Here a small recap for async data usage
-
-```typescript
-  /**
-   * Function to construct an http call. This is the callback passed as a parameter to tableOptions in serverHttp.
-   * If our server indicates the page size parameter with alias 'elementPerPage' then inside 'queryAliasParameter' we need to add aliasParameter page -> per_page
-   * @param params
-   */
-  public buildHttpCall(params = {}) {
-    return this.http.get('https://reqres.in/api/users', {
-      params
-    });
-  }
-```
+# Demo App
+For more example explore my [demo app](https://github.com/mruta2020/entity-mat-table/tree/master/projects/entity-material-table-test/src/app)
 
 # Contribute
 If you wish to contribute to this library, please fork the repository and submit your pull requests. We welcome contributions from the community!

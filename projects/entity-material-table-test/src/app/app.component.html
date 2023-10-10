@@ -1,12 +1,38 @@
-<div>
-    <button (click)="entityMaterialTableComponent.onExportExcel()">Esporta</button>
+<div style="margin-bottom: 10px;">
+    <div style="display: flex;align-items: center;justify-content: space-between">
+        <div style="display: flex;align-items: center;gap: 8px;">
+            <mat-form-field>
+                <mat-label>Data type</mat-label>
+                <mat-select [(ngModel)]="type"
+                            (ngModelChange)="onInitOptions()">
+                    <mat-option [value]="'SYNC'">Sync</mat-option>
+                    <mat-option [value]="'ASYNC'">Aync</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field *ngIf="type == 'ASYNC'">
+                <mat-label>Aync type</mat-label>
+                <mat-select [(ngModel)]="asyncSource"
+                            (ngModelChange)="onInitOptions()">
+                    <mat-option [value]="'HTTP'">Http</mat-option>
+                    <mat-option [value]="'SDK'">Sdk</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div>
+            <button mat-flat-button
+                    color="primary"
+                    (click)="onExport()">Export</button>
+        </div>
+    </div>
 </div>
-<entity-material-table [options]="tableOptions" (onSelection)="onSelectionChange($event)">
+<entity-material-table [options]="tableOptions"
+                       (selected)="onSelected($event)"
+                       (onSelection)="onSelectionChange($event)">
    <ng-template #cellTemplate let-element let-property="property">
         <div *ngIf="property != 'actions'">{{element[property]}}</div>
         <div *ngIf="property == 'actions'">
             <div>
-                <button (click)="onDelete(element)">cancella</button>
+                <button mat-button color="accent" (click)="onDelete(element)">cancella</button>
             </div>
         </div>
     </ng-template>

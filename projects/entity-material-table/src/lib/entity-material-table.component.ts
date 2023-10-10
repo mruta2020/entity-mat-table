@@ -3,9 +3,9 @@ import {
   Component,
   ContentChild,
   EventEmitter,
-  Input,
+  Input, OnChanges,
   OnInit,
-  Output,
+  Output, SimpleChanges,
   TemplateRef, ViewChild
 } from '@angular/core';
 import {EntityMatTableOptions, EntityMatTablePaginationRes, EntityTableColumn} from "./model/entity-mat-table-options";
@@ -21,7 +21,7 @@ import {EntityMaterialTableService} from "./entity-material-table.service";
   templateUrl: './entity-material-table.component.html',
   styles: []
 })
-export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
+export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   @ContentChild('exportTemplate') exportTemplate!: TemplateRef<any>;
   @ContentChild('cellTemplate') cellTemplate!: TemplateRef<any>;
@@ -40,60 +40,53 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
   constructor(private srv: EntityMaterialTableService<T>) {
   }
 
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes['options']?.currentValue != changes['options']?.previousValue
+      && !changes['options']?.isFirstChange()) {
+      this.paginator.pageIndex = 0;
+      this.initOptionsDefaultValue();
+      await this._initTable();
+    }
+  }
+
   async ngAfterViewInit() {
 
     if (this.options?.paginator?.show) {
 
-      if(this.options?.serverHttp){
-        await this.initAsyncTable();
-      } else {
-        this.initSyncTable();
-      }
+      this.initOptionsDefaultValue();
+      await this._initTable();
 
       this.paginator.page.subscribe(async () => {
-        if(this.options?.serverHttp){
-          await this.initAsyncTable();
-        } else {
-          this.initSyncTable();
-        }
-
+        await this._initTable();
       });
     }
   }
 
+  private async _initTable() {
+
+    if (this.options?.serverHttp) {
+      await this.initAsyncTable();
+    } else {
+      this.initSyncTable();
+    }
+
+  }
+
   async ngOnInit() {
 
-    this.selection.changed.subscribe((res)=>{
+    this.selection.changed.subscribe((res) => {
       this.onSelection.emit(res);
     });
 
     this.initOptionsDefaultValue();
-
-    if (this.options?.actions?.length > 0) {
-      const actionColumn = _.find(this.options?.columns, c => c.property == 'actions');
-      if (!actionColumn) {
-        this.options?.columns.push({
-          label: 'Actions',
-          property: 'actions'
-        });
-      }
-    }
-
-    if (!this.options.serverHttp) {
-      let data: any = this.options.rows;
-      this.dataSource.data = data;
-      this.dataSource._updateChangeSubscription();
-      this.initColumns();
-    }
-
   }
 
-  onExportExcel(){
+  onExportExcel() {
     // @ts-ignore
     this.srv.exportDataTableToExcel(this.dataSource.data, this.options)
   }
 
-  getPipeTransform(value: string, element: EntityTableColumn){
+  getPipeTransform(value: string, element: EntityTableColumn) {
     return element.pipe?.ref.transform(value, element.pipe.args);
   }
 
@@ -124,29 +117,42 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
 
   private initColumns() {
 
+    const length = this.options?.actions?.length || 0;
+    if (length > 0) {
+      const actionColumn = _.find(this.options?.columns, c => c.property == 'actions');
+      if (!actionColumn) {
+        this.options?.columns.push({
+          label: 'Actions',
+          property: 'actions'
+        });
+      }
+    }
+
     this.displayedColumns = this.options?.columns.map(c => c.property);
 
-    if(this.options?.showSelection){
+    if (this.options?.showSelection) {
       const selectColumn = _.find(this.displayedColumns, c => c == 'selection');
       if (!selectColumn) {
         this.displayedColumns.splice(0, 0, 'selection');
       }
     }
-
-    this.checkColumnsAreAvailable();
   }
 
-  private initSyncTable(){
+  private initSyncTable() {
 
     // @ts-ignore
     this.dataSource.data = this.options.rows.slice(this.paginator.pageIndex * this.paginator.pageSize, (this.paginator.pageIndex + 1) * this.paginator.pageSize);
     this.dataSource._updateChangeSubscription();
 
     this.initColumns();
-    this.paginator.length = this.options.rows.length;
+    this.checkColumnsAreAvailable();
+
+    this.paginator.length = this.options?.rows?.length || 0;
   }
 
   private async initAsyncTable() {
+
+    this.initColumns();
 
     // @ts-ignore
     const observable = this.options.serverHttp(this.buildQueryParameters()).pipe(map(res => this.options.transcoder(res)));
@@ -163,28 +169,28 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
     // @ts-ignore
     this.dataSource.data = data.data;
     this.dataSource._updateChangeSubscription();
-
-    this.initColumns();
     this.checkPageConfigHaveSameResConfig();
 
+    this.checkColumnsAreAvailable();
     this.paginator.length = this.paginationRes.total;
   }
 
   private buildQueryParameters() {
 
     let params: any = {};
-    for (let k of this.options.queryParameters.keys()) {
-      params[k] = this.options.queryParameters.get(k);
+    const keys = this.options?.queryParameters?.keys() || [];
+    for (let k of keys) {
+      params[k] = this.options?.queryParameters?.get(k);
     }
 
-    const sizeAlias: any = this.options.paginator.queryParametersAlias?.get('size');
+    const sizeAlias: any = this.options?.paginator?.queryParametersAlias?.get('size');
     if (sizeAlias) {
       params[sizeAlias] = this.paginator?.pageSize;
     }
 
-    const pageAlias: any = this.options.paginator.queryParametersAlias?.get('page');
+    const pageAlias: any = this.options?.paginator?.queryParametersAlias?.get('page');
     if (pageAlias) {
-      params[pageAlias] = this.paginator?.pageIndex + this.options.paginator.default;
+      params[pageAlias] = this.paginator?.pageIndex + (this.options?.paginator?.default || 0);
     }
 
     return params;
@@ -213,7 +219,7 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit {
   private checkColumnsAreAvailable() {
     const firstObject = _.get(this.dataSource, 'data[0]');
     const keys = Object.keys(firstObject);
-    const intersection = _.filter(_.cloneDeep(this.displayedColumns), item => _.indexOf(keys, item) == -1);
+    const intersection = _.filter(_.cloneDeep(this.displayedColumns), item => (_.indexOf(keys, item) == -1 && _.indexOf(['selection', 'actions'], item) == -1));
 
     if (intersection.length > 0) {
       console.error("One or more defined columns are not present in the first object keys! Check you data structure!", "displayedColumns not found: " + _.join(intersection, ', '));
