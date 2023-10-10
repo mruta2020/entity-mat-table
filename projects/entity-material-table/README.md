@@ -14,7 +14,7 @@ npm install entity-material-table
 
 To use the library in your project, follow these steps:
 
-1. Importa il modulo EntityMaterialTableModule nella tua applicazione:
+1. Import EntityMaterialTableModule module into your module:
 
 ```typescript
 import { EntityMaterialTableModule } from 'entity-material-table';
@@ -68,12 +68,12 @@ EntityMatTableOptions
 
 EntityMatTablePaginator
 
-| Field        | Type                                                                                            | Description                                                                                                                                           |
-|--------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `size`       | `number[]`                                                                                      | Paginator range size                                                                                                                                  |
-| `default`    | `number`                                                                                        | Page index default. Some servers have the value 0 setted as first index page, other 1                                                                 |
-| `show`       | `boolean`                                                                                       | Display validator (default false).                                                                                                                    |
-| `queryParametersAlias` | `Map<string, any>`                                                                                      | A map that defines how replace the paginator pageSize and pageIndex parameters. Their name are replaced before call the function passed to serverHttp |
+| Field        | Type                                                                                            | Description                                                                                                                                                                                        |
+|--------------|-------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `size`       | `number[]`                                                                                      | Paginator range size                                                                                                                                                                               |
+| `default`    | `number`                                                                                        | Page index default. Some servers have the value 0 setted as first index page, other 1                                                                                                              |
+| `show`       | `boolean`                                                                                       | Display validator (default false).                                                                                                                                                                 |
+| `queryParametersAlias` | `Map<string, any>`                                                                                      | A map that defines how replace the paginator pageSize and pageIndex parameters. Their name are replaced before call the function passed to serverHttp. the necessary parameters are `page` and `size` |
 
 EntityMatTableAction
 
@@ -154,7 +154,22 @@ Custom template
     </ng-template>
 </entity-material-table>
 ```
+# Example
 
+See Test project to learn how use library with async or sync data. Here a small recap for async data usage
+
+```typescript
+  /**
+   * Function to construct an http call. This is the callback passed as a parameter to tableOptions in serverHttp.
+   * If our server indicates the page size parameter with alias 'elementPerPage' then inside 'queryAliasParameter' we need to add aliasParameter page -> per_page
+   * @param params
+   */
+  public buildHttpCall(params = {}) {
+    return this.http.get('https://reqres.in/api/users', {
+      params
+    });
+  }
+```
 
 # Contribute
 If you wish to contribute to this library, please fork the repository and submit your pull requests. We welcome contributions from the community!

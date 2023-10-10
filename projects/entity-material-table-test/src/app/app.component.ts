@@ -39,10 +39,6 @@ export class AppComponent implements OnInit {
 
   }
 
-  getString(elem: any) {
-    console.log(elem);
-  }
-
   onDelete(row: Element) {
     console.log(row);
   }
@@ -51,6 +47,11 @@ export class AppComponent implements OnInit {
     console.log(row);
   }
 
+  /**
+   * Function to construct an http call. This is the callback passed as a parameter to tableOptions in serverHttp.
+   * If our server indicates the page size parameter with alias 'elementPerPage' then inside 'queryAliasParameter' we need to add aliasParameter page -> per_page
+   * @param params
+   */
   public buildHttpCall(params = {}) {
     return this.http.get('https://reqres.in/api/users', {
       params
@@ -261,18 +262,8 @@ export class AppComponent implements OnInit {
       size: [3,10,12],
       default: 0
     };
+
     this.tableOptions.rows = elements;
-
-    this.tableOptions.actions = [
-      {
-        label: 'cancella',
-        icon: '<p style="color:red;">prova</p>',
-        callback(row: Element) {
-          console.log(row);
-        }
-      }
-    ];
-
   }
 }
 
