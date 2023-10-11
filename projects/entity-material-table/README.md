@@ -242,6 +242,12 @@ Custom template
 # Demo App
 For more example explore my [demo app](https://github.com/mruta2020/entity-mat-table/tree/master/projects/entity-material-table-test/src/app)
 
+# Contact 
+
+If you like this library, or you find some defect/bug, you could contact me through my personal web site.
+
+[CONTACT ME](https://portfolio.fivelab.it/tools/info)
+
 # Contribute
 If you wish to contribute to this library, please fork the repository and submit your pull requests. We welcome contributions from the community!
 
