@@ -1,6 +1,6 @@
 {
   "name": "entity-material-table",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "peerDependencies": {
     "@angular/common": "^16.1.0",
     "@angular/core": "^16.1.0",
@@ -9,10 +9,14 @@
     "lodash": "^4.17.21",
     "xlsx": "^0.18.5"
   },
-  "exports": {
-    ".": {
-      "sass": "./_index.scss"
-    }
+  "./*": {
+    "import": "./dist/*.ts",
+    "require": "./dist/*.js",
+    "node": "./src/*.ts"
+  },
+  "./dist/*": {
+    "import": "./dist/*/",
+    "require": "./dist/*"
   },
   "dependencies": {
     "tslib": "^2.3.0"

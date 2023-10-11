@@ -155,24 +155,33 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit, O
     this.initColumns();
 
     // @ts-ignore
-    const observable = this.options.serverHttp(this.buildQueryParameters()).pipe(map(res => this.options.transcoder(res)));
+    const observable = this.options.serverHttp(this.buildQueryParameters()).pipe(map(res => this.options?.transcoder ? this.options?.transcoder(res) : res));
     const data = await observable.toPromise();
 
-    //@ts-ignore
-    this.paginationRes = data;
+    if(this.options?.showSelection){
 
-    // @ts-ignore
-    if (!(this.isEntityMatTablePaginationRes(data))) {
-      console.error('Non è un oggetto EntityMatTablePaginationRes<T>. Definire o rivedere il transcodere per la risposta!');
+      //@ts-ignore
+      this.paginationRes = data;
+
+      // @ts-ignore
+      if (!(this.isEntityMatTablePaginationRes(data))) {
+        console.error('Non è un oggetto EntityMatTablePaginationRes<T>. Definire o rivedere il transcodere per la risposta!');
+      }
     }
+
 
     // @ts-ignore
     this.dataSource.data = data.data;
     this.dataSource._updateChangeSubscription();
-    this.checkPageConfigHaveSameResConfig();
 
     this.checkColumnsAreAvailable();
-    this.paginator.length = this.paginationRes.total;
+
+    if(this.options?.showSelection){
+      this.checkPageConfigHaveSameResConfig();
+      this.paginator.length = this.paginationRes.total;
+    }
+
+
   }
 
   private buildQueryParameters() {
