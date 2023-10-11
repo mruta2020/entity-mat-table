@@ -1,6 +1,6 @@
 {
   "name": "entity-material-table",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "peerDependencies": {
     "@angular/common": "^16.1.0",
     "@angular/core": "^16.1.0",

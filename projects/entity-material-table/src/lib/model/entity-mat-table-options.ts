@@ -1,9 +1,10 @@
 import {Observable} from "rxjs";
-import {Pipe, PipeTransform} from "@angular/core";
+import {Pipe, PipeTransform, TemplateRef} from "@angular/core";
 
 export class EntityMatTableOptions<T> {
   queryParameters?: Map<string, any>;
   showSelection?: boolean;
+  cssClassList?: string[];
   rows?: T[];
   excelConfig?: EntityMatTableExcelConfig;
   serverHttp?: Function;

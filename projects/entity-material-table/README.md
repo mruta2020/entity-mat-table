@@ -54,17 +54,18 @@ export class YourComponent {
 
 EntityMatTableOptions
 
-| Field             | Type                | Description                                                                                                                                   |
-|-------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `queryParameters` | `Map<string, any>`  | A map of parameters to pass in the HTTP request to the server.                                                                                |
-| `showSelection`   | `boolean`           | Indicates whether the row selection column should be displayed in the table.(default false)                                                   |
-| `rows`            | `T[]`               | An array of data (rows) to display in the table.                                                                                              |
-| `serverHttp`      | `Function`          | A function that performs the HTTP request to the server to fetch table data.                                                                  |
-| `transcoder`      | `Function`          | A function that converts the server's HTTP response into table data.                                                                          |
-| `paginator`       | `EntityMatTablePaginator` | Pagination options, including possible values for the number of rows per page, the default value, and whether pagination should be displayed. |
-| `actions`         | `EntityMatTableAction[]` | An array of custom actions to display in the "Actions" column of the table. Each action can have an icon, a label, and a callback function.   |
-| `columns`         | `EntityTableColumn[]` | An array of objects defining the columns of the table. Each object contains information such as a label and property to display.              |
+| Field             | Type                        | Description                                                                                                                                   |
+|-------------------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `queryParameters` | `Map<string, any>`          | A map of parameters to pass in the HTTP request to the server.                                                                                |
+| `showSelection`   | `boolean`                   | Indicates whether the row selection column should be displayed in the table.(default false)                                                   |
+| `rows`            | `T[]`                       | An array of data (rows) to display in the table.                                                                                              |
+| `serverHttp`      | `Function`                  | A function that performs the HTTP request to the server to fetch table data.                                                                  |
+| `transcoder`      | `Function`                  | A function that converts the server's HTTP response into table data.                                                                          |
+| `paginator`       | `EntityMatTablePaginator`   | Pagination options, including possible values for the number of rows per page, the default value, and whether pagination should be displayed. |
+| `actions`         | `EntityMatTableAction[]`    | An array of custom actions to display in the "Actions" column of the table. Each action can have an icon, a label, and a callback function.   |
+| `columns`         | `EntityTableColumn[]`       | An array of objects defining the columns of the table. Each object contains information such as a label and property to display.              |
 | `excelConfig`     | `EntityMatTableExcelConfig` | Configure options to export data in xlsx or csv                                                                                               |
+| `cssClassList`     | `string[]`                  | Css class to add on tag <table>                                                                                                               |
 
 EntityMatTablePaginator
 

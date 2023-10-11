@@ -59,6 +59,8 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit, O
       this.paginator.page.subscribe(async () => {
         await this._initTable();
       });
+    } else {
+      await this._initTable();
     }
   }
 
@@ -171,7 +173,7 @@ export class EntityMaterialTableComponent<T> implements OnInit, AfterViewInit, O
 
 
     // @ts-ignore
-    this.dataSource.data = data.data;
+    this.dataSource.data = _.get(data, 'data', data);
     this.dataSource._updateChangeSubscription();
 
     this.checkColumnsAreAvailable();

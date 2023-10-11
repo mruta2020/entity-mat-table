@@ -2,7 +2,6 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {
   EntityMatTableOptions, EntityTableColumn
 } from "../../../entity-material-table/src/lib/model/entity-mat-table-options";
-import {HttpClient} from "@angular/common/http";
 import {EntityMaterialTableComponent} from "entity-material-table";
 import {DataService} from "./data.service";
 
@@ -18,7 +17,7 @@ export class AppComponent implements OnInit {
 
   //@ts-ignore
   tableOptions: EntityMatTableOptions = {};
-  type: 'SYNC' | 'ASYNC' = 'SYNC';
+  type: 'SYNC' | 'ASYNC' = 'ASYNC';
   asyncSource: 'HTTP' | 'SDK' = 'HTTP';
 
   constructor(private dataService: DataService) {
@@ -42,6 +41,7 @@ export class AppComponent implements OnInit {
         this.tableOptions = this.dataService.geFactoryAsyncData(this.asyncSource);
         break;
     }
+    this.tableOptions.cssClassList = ['mat-elevation'];
   }
 
   onDelete(row: any) {
